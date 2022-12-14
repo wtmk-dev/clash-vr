@@ -5,6 +5,11 @@ using UnityEngine.InputSystem;
 
 public class FlyingMechanics : MonoBehaviour
 {
+    public void SetBoostable(bool isActive)
+    {
+        _Boostable = isActive;
+    }
+
     [SerializeField]
     private InputActionAsset _Input;
 
@@ -16,31 +21,55 @@ public class FlyingMechanics : MonoBehaviour
     private Rigidbody _Rig;
     private InputActionMap _LeftHand;
 
+    private bool _Boostable = true;
 
     private void Awake()
     {
         _Rig = GetComponent<Rigidbody>();
-        
-        for (int i = 0; i < _Input.actionMaps.Count; i++)
-        {
-            Debug.Log(_Input.actionMaps[i]);
-        }
-
-        _LeftHand = _Input.actionMaps[1];
-        var act = _LeftHand.FindAction("Position");
-
         _LeftTriggerState.action.performed += OnLeftTriggerPressed;
     }
 
     private void OnLeftTriggerPressed(InputAction.CallbackContext obj)
     {
-        Debug.Log(obj.ReadValue<bool>());
+        var isActive = obj.ReadValue<bool>();
+        Debug.Log($"Left triggered pressed {isActive}");
     }
 
     private void Update()
     {
         var val = _LeftHandPosition.action.ReadValue<Vector3>();
         Debug.Log("Left hand pos: " + val);
+
+        CheckBoost();
     }
 
+    private void CheckBoost()
+    {
+        if(_Boostable)
+        {
+            var q = Keyboard.current.qKey;
+            if (q.wasPressedThisFrame)
+            {
+                Debug.Log("was pressed this frame");
+                _Boostable = false;
+                _IsBoosting = true;
+            }
+        }
+    }
+
+    private void DoBoost()
+    {
+        if (_IsBoosting)
+        {
+            _IsBoosting = false;
+            _Rig.AddForce(Vector3.up * 15f, ForceMode.Impulse);
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        DoBoost();
+    }
+
+    private bool _IsBoosting;
 }
