@@ -62,7 +62,7 @@ public class FlyingMechanics : MonoBehaviour
         if (_IsBoosting)
         {
             _IsBoosting = false;
-            _Rig.AddForce(Vector3.up * 15f, ForceMode.Impulse);
+            _Rig.AddForce(Vector3.up * 15f, ForceMode.Force);
         }
     }
 
