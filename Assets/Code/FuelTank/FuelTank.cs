@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,9 @@ using UnityEngine.UI;
 
 public class FuelTank : MonoBehaviour
 {
+    public event Action OnEmpty;
+    public event Action OnHasFuel;
+
     [SerializeField]
     private FuelBar _FuelBar;
     [SerializeField]
@@ -15,11 +19,33 @@ public class FuelTank : MonoBehaviour
     private float _CurrentTankValue;
     public void Deplete(float fuelCost)
     {
+        if (_FuelBar.GetValue() <= 0)
+        {
+            OnEmpty?.Invoke();
+            return;
+        }
+
         _FuelBar.SetValue(_CurrentTankValue -= fuelCost);
+    }
+
+    public void Fill(float fuelCost)
+    {
+        if(_FuelBar.GetValue() >= 1)
+        {
+            return;
+        }
+
+        if (_CurrentTankValue <= 0)
+        {
+            OnHasFuel?.Invoke();
+        }
+
+        _FuelBar.SetValue(_CurrentTankValue += (fuelCost * .5f));
     }
 
     private void Start()
     {
-        _FuelBar.SetValue(_BaseFuelValue);
+        _CurrentTankValue = _BaseFuelValue;
+        _FuelBar.SetValue(_CurrentTankValue);
     }
 }

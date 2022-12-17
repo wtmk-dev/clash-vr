@@ -8,6 +8,11 @@ public class FuelBar : MonoBehaviour
     [SerializeField]
     private Image _Value;
 
+    public float GetValue()
+    {
+        return _Value.fillAmount;
+    }
+
     public void SetValue(float value)
     {
         _Value.fillAmount = value;

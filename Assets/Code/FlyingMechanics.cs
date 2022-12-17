@@ -17,30 +17,87 @@ public class FlyingMechanics : MonoBehaviour
     private InputActionReference _LeftHandPosition;
     [SerializeField]
     private InputActionReference _LeftTriggerState;
+    [SerializeField]
+    private FuelTank _FuelTank;
 
     private Rigidbody _Rig;
     private InputActionMap _LeftHand;
 
-    private bool _Boostable = true;
+    private bool _Boostable = true, _CanUseThrottal = true;
+    private bool _IsBoosting, _IsOnThrottal, _ReFueling;
+
+    private float _FuelCost = .01f;
+    private float _Acceleration = 15f;
+    private float _CurrentAcceleration = 15f;
+    private float _MaxAcceleration = 100f;
+    private float _Speed = 10f;
+    private float _BoostPower = 600f;
 
     private void Awake()
     {
         _Rig = GetComponent<Rigidbody>();
         _LeftTriggerState.action.performed += OnLeftTriggerPressed;
+        _FuelTank.OnEmpty += OnEmpty;
+        _FuelTank.OnHasFuel += OnHasFuel;
+    }
+
+    private void OnEmpty()
+    {
+        _CanUseThrottal = false;
+        _IsOnThrottal = false;
+        _Rig.velocity = Vector3.zero;
+    }
+
+    private void OnHasFuel()
+    {
+        _CanUseThrottal = true;
     }
 
     private void OnLeftTriggerPressed(InputAction.CallbackContext obj)
     {
         var isActive = obj.ReadValue<bool>();
-        Debug.Log($"Left triggered pressed {isActive}");
+        //Debug.Log($"Left triggered pressed {isActive}");
     }
 
     private void Update()
     {
         var val = _LeftHandPosition.action.ReadValue<Vector3>();
-        Debug.Log("Left hand pos: " + val);
+        //Debug.Log("Left hand pos: " + val);
 
         CheckBoost();
+        CheckThrottle();
+        DoRefill();
+    }
+
+    private void FixedUpdate()
+    {
+        DoBoost();
+        DoAccelerate();
+    }
+
+    private void CheckThrottle()
+    {
+        var space = Keyboard.current.spaceKey;
+
+        if (_CanUseThrottal)
+        {
+            if(space.IsPressed())
+            {
+                _ReFueling = false;
+                _IsOnThrottal = true;
+                ResetCurrentAcceleration();
+            }
+        }
+        
+        if(!space.IsPressed())
+        {
+            _IsOnThrottal = false;
+            _ReFueling = true;
+            if (_CurrentAcceleration > _Acceleration)
+            {
+                _CurrentAcceleration -= (_Speed * Time.deltaTime);
+            }
+        }
     }
 
     private void CheckBoost()
@@ -51,8 +108,21 @@ public class FlyingMechanics : MonoBehaviour
             if (q.wasPressedThisFrame)
             {
                 Debug.Log("was pressed this frame");
-                _Boostable = false;
                 _IsBoosting = true;
+            }
+        }
+    }
+
+    private void DoAccelerate()
+    {
+        if(_IsOnThrottal)
+        {
+            if(_CurrentAcceleration < _MaxAcceleration)
+            {
+                _Rig.AddForce(Vector3.up * (_CurrentAcceleration + (_Speed * Time.deltaTime)), ForceMode.Acceleration);
+                Debug.Log(_CurrentAcceleration);
+                Debug.Log(_Rig.velocity);
+                _FuelTank.Deplete(_FuelCost);
             }
         }
     }
@@ -62,14 +132,26 @@ public class FlyingMechanics : MonoBehaviour
         if (_IsBoosting)
         {
             _IsBoosting = false;
-            _Rig.AddForce(Vector3.up * 15f, ForceMode.Force);
+            ResetCurrentAcceleration();
+            _Rig.velocity = Vector3.zero;
+            _Rig.AddForce(Vector3.up * _BoostPower, ForceMode.Force);
         }
     }
 
-    private void FixedUpdate()
+    private void DoRefill()
     {
-        DoBoost();
+        if (_ReFueling)
+        {
+            _FuelTank.Fill(_FuelCost);
+        }
     }
 
-    private bool _IsBoosting;
+    private void ResetCurrentAcceleration()
+    {
+        if (_CurrentAcceleration < _Acceleration)
+        {
+            _CurrentAcceleration = _Acceleration;
+        }
+    }    
+
 }
