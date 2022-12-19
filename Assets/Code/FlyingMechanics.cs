@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR;
 
+
 public class FlyingMechanics : MonoBehaviour
 {
     public void SetBoostable(bool isActive)
@@ -11,8 +12,6 @@ public class FlyingMechanics : MonoBehaviour
         _Boostable = isActive;
     }
 
-    [SerializeField]
-    private InputActionAsset _Input;
     [SerializeField]
     private Transform _LeftTracking;
 
@@ -24,45 +23,28 @@ public class FlyingMechanics : MonoBehaviour
     private bool _Boostable = true, _CanUseThrottal = true;
     private bool _IsBoosting, _IsOnThrottal, _ReFueling;
 
-    private float _FuelCost = .01f;
+    private float _FuelCost = .001f;
     private float _Acceleration = 15f;
     private float _CurrentAcceleration = 15f;
-    private float _MaxAcceleration = 100f;
+    private float _MaxAcceleration = 200f;
     private float _Speed = 10f;
-    private float _BoostPower = 600f;
-
-    private InputActionMap _LeftHand;
-
-    private InputAction _LeftHandPosition;
-    private Vector2 _LeftPositionValue;
-
-    private InputAction _LeftHandTrigger;
-    private float _LeftTriggerValue;
+    private float _BoostPower = 100f;
 
     [SerializeField]
-    private InputActionProperty _LeftTrigger;
-    
+    private InputActionReference _LeftHandPosition;
+    private Vector2 _LeftPositionValue;
+
+    [SerializeField]
+    private InputActionReference _LeftHandTrigger, _LeftHandGrip;
+    private float _LeftTriggerValue;
 
 
     private void Awake()
     {
-        _Rig = GetComponent<Rigidbody>();
+        _Rig = GetComponent<Rigidbody>();       
 
         _FuelTank.OnEmpty += OnEmpty;
         _FuelTank.OnHasFuel += OnHasFuel;
-    }
-
-    private void _LeftHandPosition_performed(InputAction.CallbackContext obj)
-    {
-        _LeftPositionValue = obj.ReadValue<Vector2>();
-        //Debug.Log(_LeftPositionValue);
-    }
-
-    private void _LeftHandTrigger_performed(InputAction.CallbackContext obj)
-    {
-        _LeftTriggerValue = obj.ReadValue<float>();
-
-        Debug.Log(_LeftTriggerValue);
     }
 
     private void OnEmpty()
@@ -77,17 +59,8 @@ public class FlyingMechanics : MonoBehaviour
         _CanUseThrottal = true;
     }
 
-    private void OnLeftTriggerPressed(InputAction.CallbackContext obj)
-    {
-        var isActive = obj.ReadValue<bool>();
-        Debug.Log($"Left triggered pressed {isActive}");
-    }
-
     private void Update()
     {
-        _LeftTriggerValue = _LeftTrigger.action.ReadValue<float>();
-        Debug.Log($"Trigger value {_LeftTriggerValue}");
-
         CheckBoost();
         CheckThrottle();
         DoRefill();
@@ -101,11 +74,17 @@ public class FlyingMechanics : MonoBehaviour
 
     private void CheckThrottle()
     {
-        var space = Keyboard.current.spaceKey;
+        var throttle = _LeftHandTrigger.action.ReadValue<float>();
+        Debug.Log(throttle);
+
+        var isPressed = false;
+
+        //isPressed = throttle > 0f && throttle < 1f ? true : false;
+        isPressed = Keyboard.current.spaceKey.IsPressed();
 
         if (_CanUseThrottal)
         {
-               if(space.IsPressed())
+            if(isPressed)
             {
                 _ReFueling = false;
                 _IsOnThrottal = true;
@@ -113,7 +92,7 @@ public class FlyingMechanics : MonoBehaviour
             }
         }
         
-        if(!space.IsPressed())
+        if(!isPressed)
         {
             _IsOnThrottal = false;
             _ReFueling = true;
@@ -128,10 +107,10 @@ public class FlyingMechanics : MonoBehaviour
     {
         if(_Boostable)
         {
-            var q = Keyboard.current.qKey;
-            if (q.wasPressedThisFrame)
+            //var boost = _LeftHandGrip.action.WasPressedThisFrame();
+            var boost = Keyboard.current.qKey.wasPressedThisFrame;
+            if (boost)
             {
-                //Debug.Log("was pressed this frame");
                 _IsBoosting = true;
             }
         }
@@ -144,8 +123,7 @@ public class FlyingMechanics : MonoBehaviour
             if(_CurrentAcceleration < _MaxAcceleration)
             {
                 _Rig.AddForce(Vector3.up * (_CurrentAcceleration + (_Speed * Time.deltaTime)), ForceMode.Acceleration);
-                //Debug.Log(_CurrentAcceleration);
-                //Debug.Log(_Rig.velocity);
+
                 _FuelTank.Deplete(_FuelCost);
             }
         }
@@ -158,7 +136,7 @@ public class FlyingMechanics : MonoBehaviour
             _IsBoosting = false;
             ResetCurrentAcceleration();
             _Rig.velocity = Vector3.zero;
-            _Rig.AddForce(Vector3.up * _BoostPower, ForceMode.Force);
+            _Rig.AddForce(Vector3.up * _BoostPower, ForceMode.Impulse);
         }
     }
 
