@@ -14,38 +14,38 @@ public class FuelTank : MonoBehaviour
     [SerializeField]
     private float _BaseFuelValue = 1, _BoostMinRange = 0.1f, _BoostMaxRange = 0.185f;
 
-    public float CurrentValue => _CurrentTankValue;
+    public float CurrentValue => _FuelBar.GetValue();
 
-    private float _CurrentTankValue;
     public void Deplete(float fuelCost)
     {
-        if (_FuelBar.GetValue() <= 0)
+        var fuel = _FuelBar.GetValue();
+        if (fuel <= 0)
         {
             OnEmpty?.Invoke();
             return;
         }
 
-        _FuelBar.SetValue(_CurrentTankValue -= fuelCost);
+        _FuelBar.SetValue(fuel -= fuelCost);
     }
 
     public void Fill(float fuelCost)
     {
-        if(_FuelBar.GetValue() >= 1)
+        var fuel = _FuelBar.GetValue();
+        if (fuel >= 1)
         {
             return;
         }
 
-        if (_CurrentTankValue <= 0)
+        if (fuel <= 0)
         {
             OnHasFuel?.Invoke();
         }
 
-        _FuelBar.SetValue(_CurrentTankValue += (fuelCost * .5f));
+        _FuelBar.SetValue(fuel += (fuelCost * .5f));
     }
 
     private void Start()
     {
-        _CurrentTankValue = _BaseFuelValue;
-        _FuelBar.SetValue(_CurrentTankValue);
+        _FuelBar.SetValue(1f);
     }
 }

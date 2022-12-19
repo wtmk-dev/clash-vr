@@ -23,7 +23,7 @@ public class FlyingMechanics : MonoBehaviour
     private bool _Boostable = true, _CanUseThrottal = true;
     private bool _IsBoosting, _IsOnThrottal, _ReFueling;
 
-    private float _FuelCost = .001f;
+    private float _FuelCost = .01f;
     private float _Acceleration = 15f;
     private float _CurrentAcceleration = 15f;
     private float _MaxAcceleration = 200f;
@@ -57,6 +57,11 @@ public class FlyingMechanics : MonoBehaviour
     private void OnHasFuel()
     {
         _CanUseThrottal = true;
+
+        if(_FuelTank.CurrentValue >= 1f)
+        {
+            _Boostable = true;
+        }
     }
 
     private void Update()
@@ -111,6 +116,7 @@ public class FlyingMechanics : MonoBehaviour
             var boost = Keyboard.current.qKey.wasPressedThisFrame;
             if (boost)
             {
+                _Boostable = false;
                 _IsBoosting = true;
             }
         }
@@ -134,6 +140,13 @@ public class FlyingMechanics : MonoBehaviour
         if (_IsBoosting)
         {
             _IsBoosting = false;
+            Debug.Log(_FuelTank.CurrentValue);
+            if (_FuelTank.CurrentValue > 0.1 && _FuelTank.CurrentValue < 0.18)
+            {
+                Debug.Log("crit");
+                _Boostable = true;
+                _FuelTank.Fill(1);
+            }
             ResetCurrentAcceleration();
             _Rig.velocity = Vector3.zero;
             _Rig.AddForce(Vector3.up * _BoostPower, ForceMode.Impulse);
