@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.XR;
 
 public class FlyingMechanics : MonoBehaviour
 {
@@ -12,16 +13,13 @@ public class FlyingMechanics : MonoBehaviour
 
     [SerializeField]
     private InputActionAsset _Input;
+    [SerializeField]
+    private Transform _LeftTracking;
 
-    [SerializeField]
-    private InputActionReference _LeftHandPosition;
-    [SerializeField]
-    private InputActionReference _LeftTriggerState;
     [SerializeField]
     private FuelTank _FuelTank;
 
     private Rigidbody _Rig;
-    private InputActionMap _LeftHand;
 
     private bool _Boostable = true, _CanUseThrottal = true;
     private bool _IsBoosting, _IsOnThrottal, _ReFueling;
@@ -33,12 +31,38 @@ public class FlyingMechanics : MonoBehaviour
     private float _Speed = 10f;
     private float _BoostPower = 600f;
 
+    private InputActionMap _LeftHand;
+
+    private InputAction _LeftHandPosition;
+    private Vector2 _LeftPositionValue;
+
+    private InputAction _LeftHandTrigger;
+    private float _LeftTriggerValue;
+
+    [SerializeField]
+    private InputActionProperty _LeftTrigger;
+    
+
+
     private void Awake()
     {
         _Rig = GetComponent<Rigidbody>();
-        _LeftTriggerState.action.performed += OnLeftTriggerPressed;
+
         _FuelTank.OnEmpty += OnEmpty;
         _FuelTank.OnHasFuel += OnHasFuel;
+    }
+
+    private void _LeftHandPosition_performed(InputAction.CallbackContext obj)
+    {
+        _LeftPositionValue = obj.ReadValue<Vector2>();
+        //Debug.Log(_LeftPositionValue);
+    }
+
+    private void _LeftHandTrigger_performed(InputAction.CallbackContext obj)
+    {
+        _LeftTriggerValue = obj.ReadValue<float>();
+
+        Debug.Log(_LeftTriggerValue);
     }
 
     private void OnEmpty()
@@ -56,13 +80,13 @@ public class FlyingMechanics : MonoBehaviour
     private void OnLeftTriggerPressed(InputAction.CallbackContext obj)
     {
         var isActive = obj.ReadValue<bool>();
-        //Debug.Log($"Left triggered pressed {isActive}");
+        Debug.Log($"Left triggered pressed {isActive}");
     }
 
     private void Update()
     {
-        var val = _LeftHandPosition.action.ReadValue<Vector3>();
-        //Debug.Log("Left hand pos: " + val);
+        _LeftTriggerValue = _LeftTrigger.action.ReadValue<float>();
+        Debug.Log($"Trigger value {_LeftTriggerValue}");
 
         CheckBoost();
         CheckThrottle();
@@ -81,7 +105,7 @@ public class FlyingMechanics : MonoBehaviour
 
         if (_CanUseThrottal)
         {
-            if(space.IsPressed())
+               if(space.IsPressed())
             {
                 _ReFueling = false;
                 _IsOnThrottal = true;
@@ -107,7 +131,7 @@ public class FlyingMechanics : MonoBehaviour
             var q = Keyboard.current.qKey;
             if (q.wasPressedThisFrame)
             {
-                Debug.Log("was pressed this frame");
+                //Debug.Log("was pressed this frame");
                 _IsBoosting = true;
             }
         }
@@ -120,8 +144,8 @@ public class FlyingMechanics : MonoBehaviour
             if(_CurrentAcceleration < _MaxAcceleration)
             {
                 _Rig.AddForce(Vector3.up * (_CurrentAcceleration + (_Speed * Time.deltaTime)), ForceMode.Acceleration);
-                Debug.Log(_CurrentAcceleration);
-                Debug.Log(_Rig.velocity);
+                //Debug.Log(_CurrentAcceleration);
+                //Debug.Log(_Rig.velocity);
                 _FuelTank.Deplete(_FuelCost);
             }
         }
