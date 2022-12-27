@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR;
+using UnityEngine.XR.Interaction.Toolkit;
 
 
 public class FlyingMechanics : MonoBehaviour
@@ -13,31 +14,32 @@ public class FlyingMechanics : MonoBehaviour
     }
 
     [SerializeField]
-    private Transform _LeftTracking;
-
-    [SerializeField]
     private FuelTank _FuelTank;
 
     private Rigidbody _Rig;
 
     private bool _Boostable = true, _CanUseThrottal = true;
-    private bool _IsBoosting, _IsOnThrottal, _ReFueling;
+    private bool _IsBoosting, _IsOnThrottalL, _IsOnThrottalR, _ReFueling;
 
     private float _FuelCost = .01f;
     private float _Acceleration = 15f;
     private float _CurrentAcceleration = 15f;
     private float _MaxAcceleration = 200f;
-    private float _Speed = 10f;
+    private float _Speed = 100f;
     private float _BoostPower = 100f;
+    
+    private XRNode _HeadNode = XRNode.Head, _RightHandNode = XRNode.RightHand, _LeftHandNode = XRNode.LeftHand;
+    private Vector3 _LeftHandPos, _RightHandPos, _HeadPos;
+    private Quaternion _LeftHandRot, _RightHandRot, _HeadRot;
 
-    [SerializeField]
-    private InputActionReference _LeftHandPosition;
-    private Vector2 _LeftPositionValue;
-
+    [Space]
     [SerializeField]
     private InputActionReference _LeftHandTrigger, _LeftHandGrip;
-    private float _LeftTriggerValue;
-
+    [Space]
+    [SerializeField]
+    private InputActionReference _RightHandTrigger, _RightHandGrip;
+    [SerializeField]
+    private XRController _LeftXRController, _RightXRController;
 
     private void Awake()
     {
@@ -45,12 +47,15 @@ public class FlyingMechanics : MonoBehaviour
 
         _FuelTank.OnEmpty += OnEmpty;
         _FuelTank.OnHasFuel += OnHasFuel;
+        
     }
 
     private void OnEmpty()
     {
         _CanUseThrottal = false;
-        _IsOnThrottal = false;
+        _IsOnThrottalL = false;
+        _IsOnThrottalR = false;
+
         _Rig.velocity = Vector3.zero;
     }
 
@@ -66,54 +71,112 @@ public class FlyingMechanics : MonoBehaviour
 
     private void Update()
     {
-        CheckBoost();
-        CheckThrottle();
+        //CheckBoost();
+        _IsOnThrottalL = CheckThrottle(_LeftHandTrigger);
+        _IsOnThrottalR = CheckThrottle(_RightHandTrigger);
         DoRefill();
+        GetLeftHandPosition();
+        GetHeadPosition();
+        GetRightHandPosition();
+    }
+
+    private void LateUpdate()
+    {
+        transform.rotation = new Quaternion(transform.rotation.x, 0f, transform.rotation.z, transform.rotation.z);
+    }
+
+    private void GetLeftHandPosition()
+    {
+        var leftXRPosition = _LeftXRController.transform;
+        Debug.Log("l vector " + leftXRPosition.forward);
+
+        _LeftHandPos = leftXRPosition.forward;//UpdateDevicePositions(_LeftHandNode);
+    }
+
+    private void GetRightHandPosition()
+    {
+        var leftXRPosition = _RightXRController.transform;
+        Debug.Log("Right vector " + leftXRPosition.forward);
+
+        _RightHandPos = leftXRPosition.forward;//UpdateDevicePositions(_RightHandNode);
+    }
+
+    private void GetHeadPosition()
+    {
+        _HeadPos = UpdateDevicePositions(_HeadNode);
+    }
+
+    private Vector3 UpdateDevicePositions(XRNode node)
+    {
+        var outValue = new Vector3();
+        var inputDevices = new List<UnityEngine.XR.InputDevice>();
+        UnityEngine.XR.InputDevices.GetDevicesAtXRNode(node, inputDevices);
+
+        var device = inputDevices[0];
+
+        device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.devicePosition, out outValue);
+        return outValue;
+    }
+
+    private Quaternion UpdateDeviceRotation(XRNode node)
+    {
+        var outValue = new Quaternion();
+        var inputDevices = new List<UnityEngine.XR.InputDevice>();
+        UnityEngine.XR.InputDevices.GetDevicesAtXRNode(node, inputDevices);
+
+        var device = inputDevices[0];
+
+        device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.deviceRotation, out outValue);
+        return outValue;
     }
 
     private void FixedUpdate()
     {
         DoBoost();
-        DoAccelerate();
+        DoAccelerate(_LeftHandPos, _IsOnThrottalL);
+        DoAccelerate(_RightHandPos, _IsOnThrottalR);
     }
 
-    private void CheckThrottle()
+    private bool CheckThrottle(InputActionReference trigger)
     {
-        var throttle = _LeftHandTrigger.action.ReadValue<float>();
-        Debug.Log(throttle);
+        var isOnThrottle = false;
+        var throttle = trigger.action.ReadValue<float>();
+        //Debug.Log(throttle);
 
         var isPressed = false;
 
-        //isPressed = throttle > 0f && throttle < 1f ? true : false;
-        isPressed = Keyboard.current.spaceKey.IsPressed();
+        isPressed = throttle > .01f;
+        //isPressed = Keyboard.current.spaceKey.IsPressed();
 
         if (_CanUseThrottal)
         {
             if(isPressed)
             {
                 _ReFueling = false;
-                _IsOnThrottal = true;
+                isOnThrottle = true;
                 ResetCurrentAcceleration();
             }
         }
         
         if(!isPressed)
         {
-            _IsOnThrottal = false;
+            isOnThrottle = false;
             _ReFueling = true;
             if (_CurrentAcceleration > _Acceleration)
             {
                 _CurrentAcceleration -= (_Speed * Time.deltaTime);
             }
         }
+
+        return isOnThrottle;
     }
 
     private void CheckBoost()
     {
         if(_Boostable)
         {
-            //var boost = _LeftHandGrip.action.WasPressedThisFrame();
-            var boost = Keyboard.current.qKey.wasPressedThisFrame;
+            var boost = _LeftHandGrip.action.WasPressedThisFrame();
+            //var boost = Keyboard.current.qKey.wasPressedThisFrame;
             if (boost)
             {
                 _Boostable = false;
@@ -122,15 +185,21 @@ public class FlyingMechanics : MonoBehaviour
         }
     }
 
-    private void DoAccelerate()
+
+    private void DoAccelerate(Vector3 handPos, bool isOnThrottal)
     {
-        if(_IsOnThrottal)
+        if(isOnThrottal)
         {
             if(_CurrentAcceleration < _MaxAcceleration)
             {
-                _Rig.AddForce(Vector3.up * (_CurrentAcceleration + (_Speed * Time.deltaTime)), ForceMode.Acceleration);
+                Debug.Log("Hand " + handPos);
+                Debug.Log("Head " + _HeadPos);
 
-                _FuelTank.Deplete(_FuelCost);
+                var reverseVector = (handPos - _HeadPos).normalized;
+                reverseVector *= -1;
+
+                Debug.Log("ending " + reverseVector);
+                _Rig.AddForce(reverseVector * (_CurrentAcceleration + (_Speed * Time.deltaTime)), ForceMode.Acceleration);
             }
         }
     }
@@ -140,7 +209,7 @@ public class FlyingMechanics : MonoBehaviour
         if (_IsBoosting)
         {
             _IsBoosting = false;
-            Debug.Log(_FuelTank.CurrentValue);
+           //Debug.Log(_FuelTank.CurrentValue);
             if (_FuelTank.CurrentValue > 0.1 && _FuelTank.CurrentValue < 0.18)
             {
                 Debug.Log("crit");
