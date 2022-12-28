@@ -132,5 +132,4 @@ public class FlyingMechanics : Mechanics
             _Rig.AddForce(Vector3.up * _BoostPower, ForceMode.Impulse);
         }
     }
-
 }
