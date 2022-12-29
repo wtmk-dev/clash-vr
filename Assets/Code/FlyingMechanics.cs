@@ -16,6 +16,8 @@ public class FlyingMechanics : Mechanics
     private XRNode _HeadNode = XRNode.Head, _RightHandNode = XRNode.RightHand, _LeftHandNode = XRNode.LeftHand;
     private Vector3 _LeftHandPos, _RightHandPos, _HeadPos;
     private Quaternion _LeftHandRot, _RightHandRot, _HeadRot;
+    [SerializeField]
+    private FuelTank _FuelTank;
 
     private void Awake()
     {
@@ -52,10 +54,10 @@ public class FlyingMechanics : Mechanics
 
         CheckBoost();
 
-        DoRefill();
+        //DoRefill();
 
-        _IsOnThrottalL = CheckThrottle(_LeftHandTrigger);
-        _IsOnThrottalR = CheckThrottle(_RightHandTrigger);
+        _IsOnThrottalL = CheckTrigger(_LeftHandTrigger);
+        _IsOnThrottalR = CheckTrigger(_RightHandTrigger);
     }
 
     private void LateUpdate()
@@ -127,9 +129,19 @@ public class FlyingMechanics : Mechanics
                 _FuelTank.Fill(1);
             }
 
-            ResetCurrentAcceleration();
+            //ResetCurrentAcceleration();
             _Rig.velocity = Vector3.zero;
             _Rig.AddForce(Vector3.up * _BoostPower, ForceMode.Impulse);
         }
     }
+
+    protected float _Acceleration = 15f;
+    protected float _CurrentAcceleration = 15f;
+    protected float _MaxAcceleration = 200f;
+    protected float _FuelCost = .01f;
+    protected float _Speed = 100f;
+    protected float _BoostPower = 100f;
+
+    protected bool _Boostable = true, _CanUseThrottal = true;
+    protected bool _IsBoosting, _IsOnThrottalL, _IsOnThrottalR, _ReFueling;
 }
