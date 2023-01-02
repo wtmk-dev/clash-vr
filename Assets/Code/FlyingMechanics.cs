@@ -16,15 +16,12 @@ public class FlyingMechanics : Mechanics
     private XRNode _HeadNode = XRNode.Head, _RightHandNode = XRNode.RightHand, _LeftHandNode = XRNode.LeftHand;
     private Vector3 _LeftHandPos, _RightHandPos, _HeadPos;
     private Quaternion _LeftHandRot, _RightHandRot, _HeadRot;
-    [SerializeField]
-    private FuelTank _FuelTank;
+    
 
     private void Awake()
     {
         _Rig = GetComponent<Rigidbody>();       
 
-        _FuelTank.OnEmpty += OnEmpty;
-        _FuelTank.OnHasFuel += OnHasFuel;
     }
 
     private void OnEmpty()
@@ -39,11 +36,6 @@ public class FlyingMechanics : Mechanics
     private void OnHasFuel()
     {
         _CanUseThrottal = true;
-
-        if(_FuelTank.CurrentValue >= 1f)
-        {
-            _Boostable = true;
-        }
     }
 
     private void Update()
@@ -122,12 +114,14 @@ public class FlyingMechanics : Mechanics
         {
             _IsBoosting = false;
 
+            /*
             if (_FuelTank.CurrentValue > 0.1 && _FuelTank.CurrentValue < 0.18)
             {
                 Debug.Log("crit");
                 _Boostable = true;
                 _FuelTank.Fill(1);
             }
+            */
 
             //ResetCurrentAcceleration();
             _Rig.velocity = Vector3.zero;
