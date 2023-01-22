@@ -15,7 +15,7 @@ public class Shot : MonoBehaviour, IPoolable
     {
         transform.position = pos;
         SetActive(true);
-        _Rig.AddForce(Vector2.up * FireForce, ForceMode2D.Impulse);
+        //_Rig.AddForce(Vector2.up * FireForce, ForceMode2D.Impulse);
         AliveTime = 3f;
     }
 
@@ -23,8 +23,6 @@ public class Shot : MonoBehaviour, IPoolable
     public void SetShotSize(float shotSize)
     {
         _ShotSize.x = shotSize;
-        _Rend.transform.localScale = _ShotSize;
-        _Collider.size = _ShotSize;
     }
 
     public void Return()
@@ -47,15 +45,14 @@ public class Shot : MonoBehaviour, IPoolable
         _FireForce = shotVelocity;
     }
 
-    [SerializeField] SpriteRenderer _Rend;
-    private Rigidbody2D _Rig;
-    private BoxCollider2D _Collider;
+    private Rigidbody _Rig;
+    private Collider _Collider;
     private float _ShotDamage = 10f, _FireForce;
 
     void Awake()
     {
-        _Rig = GetComponent<Rigidbody2D>();
-        _Collider = GetComponent<BoxCollider2D>();
+        _Rig = GetComponent<Rigidbody>();
+        _Collider = GetComponent<Collider>();
     }
 
     void Update()
@@ -71,19 +68,5 @@ public class Shot : MonoBehaviour, IPoolable
             Return();
         }
     }
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        switch (collision.gameObject.name)
-        {
-            case "Cat":
-                Return();
-                break;
-            case "Dog":
-                Return();
-                break;
-            case "EnemyShip(Clone)":
-                Return();
-                break;
-        }
-    }
+
 }

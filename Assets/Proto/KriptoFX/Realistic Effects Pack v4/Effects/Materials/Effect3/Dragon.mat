@@ -2,15 +2,25 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Dragon
   m_Shader: {fileID: 4800000, guid: 18cc8fe7d50c89741b56c1ae6a5baa66, type: 3}
-  m_ShaderKeywords: BlendAlpha Clip_OFF FrameBlend_OFF SoftParticles_OFF USE_FRESNEL
-    USE_NOISE_DISTORTION VertLight_OFF _ALPHABLEND_ON _BLENDMODE_BLEND _ZWRITE_ON
+  m_ValidKeywords:
+  - USE_FRESNEL
+  - USE_NOISE_DISTORTION
+  - _BLENDMODE_BLEND
+  m_InvalidKeywords:
+  - BlendAlpha
+  - Clip_OFF
+  - FrameBlend_OFF
+  - SoftParticles_OFF
+  - VertLight_OFF
+  - _ALPHABLEND_ON
+  - _ZWRITE_ON
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -64,6 +74,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - DstMode: 10
     - SrcMode: 5
@@ -109,6 +120,7 @@ Material:
     - _DistortionSpeedScale: {r: 3, g: -3, b: 0.15, a: 0.15}
     - _EmissionColor: {r: 3, g: 1.8416836, b: 1.2132354, a: 1}
     - _FogColorMultiplier: {r: 0, g: 0, b: 0, a: 0}
-    - _FresnelColor: {r: 2, g: 0.9572008, b: 0.57352936, a: 1}
+    - _FresnelColor: {r: 0, g: 0, b: 0, a: 1}
     - _Tiling: {r: 800, g: 800, b: 8, a: 8}
-    - _TintColor: {r: 3.4415908, g: 1.485927, b: 0.57660145, a: 1}
+    - _TintColor: {r: 3.441591, g: 0.5766015, b: 1.8391576, a: 1}
+  m_BuildTextureStacks: []
