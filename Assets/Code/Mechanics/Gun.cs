@@ -6,49 +6,58 @@ public class Gun : Triggerable
 {
     public Transform ShotSpawnPoint;
     [SerializeField]
-    private GameObject _ShotPrefab;
+    private GameObject _ShotPrefab, _ShotBPrefab;
     [SerializeField]
     private int _ShotPoolSize;
+    [SerializeField]
+    private Vector3 _ShotDirection;
 
-    public override void Trigger()
+    public override void Trigger(int trigger = 0)
     {
-        base.Trigger();
-        Fire();
+        base.Trigger(trigger);
+        Fire(trigger);
     }
 
-    private Pool _ShotPool;
-    private List<IPoolable> _Shots;
+    private Pool _ShotPool, _ShotPoolB;
+    private List<IPoolable> _Shots, _ShotsB;
 
     private void Awake()
     {
-        BuildShotPool();
+        _ShotPool = BuildShotPool(_Shots, _ShotPrefab);
+        _ShotPoolB = BuildShotPool(_ShotsB, _ShotBPrefab); 
     }
 
-    private void Fire()
+    private void Fire(int trigger)
     {
-        var currentShot = (Shot)_ShotPool.GetPoolable();
-        //currentShot.SetShotDamage(_Model.Damage);
-        //currentShot.SetShotVelocity(_Model.ShotVelocity);
-        //currentShot.SetShotSize(_Model.ShotSizeX);
-        currentShot.Fire(ShotSpawnPoint.position);
-        //_Animator.SetTrigger("Shoot");
+        Shot currentShot = null;
+
+        if(trigger == 0)
+        {
+            currentShot = (Shot)_ShotPool.GetPoolable();
+        }else
+        {
+            currentShot = (Shot)_ShotPoolB.GetPoolable();
+        }
+       
+        currentShot.transform.position = ShotSpawnPoint.position;
+        currentShot.Fire(ShotSpawnPoint.forward);
     }
 
-    private void BuildShotPool()
+    private Pool BuildShotPool(List<IPoolable> pool, GameObject prefab)
     {
-        _Shots = new List<IPoolable>();
+        pool = new List<IPoolable>();
         int count = _ShotPoolSize;
         while (count > 0)
         {
             count--;
-            var clone = Instantiate(_ShotPrefab);
+            var clone = Instantiate(prefab);
 
             var shot = clone.GetComponent<Shot>();
-            _Shots.Add(shot);
+            pool.Add(shot);
             clone.transform.position = ShotSpawnPoint.position;
         }
 
-        _ShotPool = new Pool(_Shots.ToArray());
+       return new Pool(pool.ToArray());
     }
 
 }

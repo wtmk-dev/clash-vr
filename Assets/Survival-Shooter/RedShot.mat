@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Dragon
+  m_Name: RedShot
   m_Shader: {fileID: 4800000, guid: 18cc8fe7d50c89741b56c1ae6a5baa66, type: 3}
   m_ValidKeywords:
   - USE_FRESNEL
@@ -122,5 +122,5 @@ Material:
     - _FogColorMultiplier: {r: 0, g: 0, b: 0, a: 0}
     - _FresnelColor: {r: 0, g: 0, b: 0, a: 1}
     - _Tiling: {r: 800, g: 800, b: 8, a: 8}
-    - _TintColor: {r: 0.15968914, g: 3.077645, b: 2.2749953, a: 1}
+    - _TintColor: {r: 3.0776453, g: 0.16113321, b: 1.080245, a: 1}
   m_BuildTextureStacks: []

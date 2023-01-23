@@ -11,11 +11,10 @@ public class Shot : MonoBehaviour, IPoolable
     public float FireForce => _FireForce;
     public float Damage => _ShotDamage;
     
-    public void Fire(Vector3 pos)
+    public void Fire(Vector3 shotDirection)
     {
-        transform.position = pos;
         SetActive(true);
-        _Rig.AddForce(Vector2.up * FireForce, ForceMode.Impulse);
+        _Rig.AddForce(shotDirection * FireForce, ForceMode.Impulse);
         AliveTime = 3f;
     }
 
@@ -47,7 +46,7 @@ public class Shot : MonoBehaviour, IPoolable
 
     private Rigidbody _Rig;
     private Collider _Collider;
-    private float _ShotDamage = 10f, _FireForce;
+    private float _ShotDamage = 10f, _FireForce = 37f;
 
     void Awake()
     {

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Triggerable : MonoBehaviour
 {
-    public virtual void Trigger()
+    public virtual void Trigger(int trigger)
     {
 
     }

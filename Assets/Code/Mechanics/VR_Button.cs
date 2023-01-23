@@ -14,7 +14,8 @@ public class VR_Button : MonoBehaviour
 
     [SerializeField]
     private Triggerable _Triggerable;
-
+    [SerializeField]
+    private int _Trigger = 0;
 
     private void Awake()
     {
@@ -26,7 +27,7 @@ public class VR_Button : MonoBehaviour
     {
         Debug.Log("Hovering");
         transform.DOMoveY(_Down, 0.1f);
-        _Triggerable.Trigger();
+        _Triggerable.Trigger(_Trigger);
     }
 
     public void OnHoverExit()
