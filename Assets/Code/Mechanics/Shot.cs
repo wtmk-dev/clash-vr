@@ -15,7 +15,7 @@ public class Shot : MonoBehaviour, IPoolable
     {
         transform.position = pos;
         SetActive(true);
-        //_Rig.AddForce(Vector2.up * FireForce, ForceMode2D.Impulse);
+        _Rig.AddForce(Vector2.up * FireForce, ForceMode.Impulse);
         AliveTime = 3f;
     }
 
