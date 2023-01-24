@@ -3105,6 +3105,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7634384355029161157}
   - component: {fileID: 7634384355036953311}
+  - component: {fileID: 6304401980791662094}
+  - component: {fileID: 9085206125654251247}
+  - component: {fileID: 5401051489395140069}
   m_Layer: 0
   m_Name: EvilWatcher_Legacy
   m_TagString: Untagged
@@ -3149,6 +3152,49 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &6304401980791662094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7634384355029649445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb6a34872f71da140b34609642b8ba44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _Type: 0
+  FireForce: 10
+--- !u!54 &9085206125654251247
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7634384355029649445}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 116
+  m_CollisionDetection: 0
+--- !u!65 &5401051489395140069
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7634384355029649445}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7634384355029649473
 GameObject:
   m_ObjectHideFlags: 0
