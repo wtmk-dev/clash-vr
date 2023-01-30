@@ -1602,7 +1602,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _Type: 0
-  FireForce: 300
+  Speed: 16
+  AliveTime: 2.3
 --- !u!65 &-3469778542090356634
 BoxCollider:
   m_ObjectHideFlags: 0

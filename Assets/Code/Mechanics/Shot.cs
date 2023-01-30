@@ -68,4 +68,10 @@ public class Shot : MonoBehaviour, IPoolable
         }
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log(collision.gameObject.name);
+    }
+
 }
+
